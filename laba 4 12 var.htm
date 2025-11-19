@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Freedom Fest - 2025</title>
+    <!-- Підключення Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Налаштування шрифтів */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Oswald:wght@700&display=swap');
+
+        /* Темна тема для фестивалю */
+        :root {
+            --color-primary: #6366f1; /* Indigo-500 */
+            --color-dark: #0a0a0a; /* Almost black */
+            --color-light: #f3f4f6; /* Light gray */
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-dark);
+            color: var(--color-light);
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--color-light);
+            text-transform: uppercase;
+        }
+        
+        /* Загальні стилі для кнопок */
+        .btn-primary {
+            background-color: var(--color-primary);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px -5px rgba(99, 102, 241, 0.5);
+        }
+        .btn-primary:hover {
+            background-color: #4f46e5;
+            transform: translateY(-2px);
+        }
+
+        /* Стилі для картки виступу */
+        .act-card {
+            border-left: 5px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .act-card:hover {
+            border-left: 5px solid var(--color-primary);
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Стилі для фільтрів (Tabs) */
+        .tab-active {
+            background-color: var(--color-primary) !important;
+            color: white !important;
+            box-shadow: 0 5px 10px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Стилі для SVG мапи */
+        #festival-map-svg .map-area {
+            transition: fill 0.3s ease, opacity 0.3s ease;
+            cursor: pointer;
+            opacity: 0.8;
+            stroke: #0a0a0a;
+            stroke-width: 0.5;
+        }
+        #festival-map-svg .map-area:hover {
+            opacity: 1;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+        }
+
+        /* Стилі для модального вікна */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.9);
+            transition: opacity 0.3s;
+        }
+        .modal-content {
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+        .modal-visible .modal-content {
+            transform: translateY(0);
+        }
+
+    </style>
+</head>
+<body onload="initApp()">
+
+    <!-- Header -->
+    <header class="bg-gray-900 sticky top-0 z-50 shadow-xl">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-3xl font-extrabold text-indigo-500 tracking-wider">ROCK FREEDOM</a>
+            <nav class="hidden md:block space-x-6">
+                <a href="#lineup" class="hover:text-indigo-400 transition">Лайн-ап</a>
+                <a href="#tickets" class="hover:text-indigo-400 transition">Квитки</a>
+                <a href="#map" class="hover:text-indigo-400 transition">Мапа</a>
+                <a href="#playlist" class="hover:text-indigo-400 transition">Плейліст</a>
+            </nav>
+            <button class="md:hidden p-2 rounded-lg hover:bg-gray-800"><i data-lucide="menu" class="w-6 h-6 text-indigo-500"></i></button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative h-[60vh] flex items-center justify-center text-center overflow-hidden">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black opacity-60"></div>
+        <div class="relative z-10 p-4">
+            <h2 class="text-6xl md:text-8xl font-black mb-4">ROCK FREEDOM FEST 2025</h2>
+            <p class="text-2xl text-indigo-300 mb-8">3 Дні. 2 Сцени. 100% Свободи.</p>
+            <a href="#tickets" class="btn-primary text-white font-bold py-3 px-8 rounded-full text-lg">
+                Придбати Квитки <i data-lucide="ticket" class="w-5 h-5 ml-2 inline"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Lineup Timeline Section -->
+    <section id="lineup" class="py-16 md:py-24 bg-gray-900">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Лайн-ап Фестивалю</h2>
+            
+            <!-- Day Tabs -->
+            <div id="day-tabs" class="flex justify-center flex-wrap gap-3 mb-8">
+                <button onclick="setLineupFilter('day', 'friday')" data-filter="day:friday" class="tab-btn bg-gray-800 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-600 transition duration-200 tab-active">П'ятниця</button>
+                <button onclick="setLineupFilter('day', 'saturday')" data-filter="day:saturday" class="tab-btn bg-gray-800 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-600 transition duration-200">Субота</button>
+                <button onclick="setLineupFilter('day', 'sunday')" data-filter="day:sunday" class="tab-btn bg-gray-800 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-600 transition duration-200">Неділя</button>
+            </div>
+
+            <!-- Filters (Genre and Stage) -->
+            <div class="flex justify-center flex-wrap gap-4 mb-12 border-b border-gray-700 pb-6">
+                <!-- Genre Filter -->
+                <select id="genre-filter" onchange="setLineupFilter('genre', this.value)" class="bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    <option value="all">Усі Жанри</option>
+                </select>
+                <!-- Stage Filter -->
+                <select id="stage-filter" onchange="setLineupFilter('stage', this.value)" class="bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    <option value="all">Усі Сцени</option>
+                </select>
+            </div>
+
+            <!-- Lineup Grid -->
+            <div id="lineup-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Артисти будуть завантажені тут JS -->
+            </div>
+            
+        </div>
+    </section>
+    
+    <!-- Tickets and Countdown Section -->
+    <section id="tickets" class="py-16 md:py-24 bg-gray-800">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Придбати Квитки</h2>
+            
+            <div class="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Ticket Calculator -->
+                <div class="lg:col-span-2 bg-gray-900 p-8 rounded-xl shadow-2xl border border-indigo-500/30">
+                    <h3 class="text-3xl font-bold mb-6 text-indigo-400">Калькулятор Вашого Замовлення</h3>
+                    
+                    <!-- Ticket Type -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">Тип Квитка</label>
+                        <div id="ticket-type-selector" class="flex flex-wrap gap-4">
+                            <button data-type="general" onclick="selectTicketType('general')" class="ticket-type-btn bg-indigo-500/20 px-4 py-2 rounded-full font-medium transition hover:bg-indigo-500/50">General Access</button>
+                            <button data-type="vip" onclick="selectTicketType('vip')" class="ticket-type-btn bg-gray-700 px-4 py-2 rounded-full font-medium transition hover:bg-indigo-500/50">VIP Lounge</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Day Selector -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">День Фестивалю</label>
+                        <div id="day-selector" class="flex flex-wrap gap-4">
+                            <button data-day="friday" onclick="selectTicketDay('friday')" class="ticket-day-btn bg-gray-700 px-4 py-2 rounded-lg font-medium transition hover:bg-indigo-500/50">П'ятниця</button>
+                            <button data-day="saturday" onclick="selectTicketDay('saturday')" class="ticket-day-btn bg-gray-700 px-4 py-2 rounded-lg font-medium transition hover:bg-indigo-500/50">Субота</button>
+                            <button data-day="sunday" onclick="selectTicketDay('sunday')" class="ticket-day-btn bg-gray-700 px-4 py-2 rounded-lg font-medium transition hover:bg-indigo-500/50">Неділя</button>
+                            <button data-day="all" onclick="selectTicketDay('all')" class="ticket-day-btn bg-gray-700 px-4 py-2 rounded-lg font-medium transition hover:bg-indigo-500/50 tab-active">All Inclusive (3 Дні)</button>
+                        </div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="mb-6">
+                        <label for="ticket-quantity" class="block text-lg font-semibold mb-3">Кількість Квитків</label>
+                        <input type="number" id="ticket-quantity" value="1" min="1" oninput="calculateTicketPrice()" class="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg text-white focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    
+                    <!-- Result -->
+                    <div class="p-4 bg-indigo-500/20 rounded-lg flex justify-between items-center mt-6 border border-indigo-500">
+                        <p class="text-xl font-semibold text-indigo-300">Загальна Вартість:</p>
+                        <p id="total-price" class="text-4xl font-black text-white">0 грн</p>
+                    </div>
+                </div>
+
+                <!-- Discount Countdown -->
+                <div class="bg-gray-900 p-8 rounded-xl shadow-2xl flex flex-col justify-center text-center border border-yellow-500/50">
+                    <h3 class="text-2xl font-bold mb-4 text-yellow-400">🔥 Спеціальна Знижка!</h3>
+                    <p class="mb-4 text-gray-400">До закінчення ранніх продажів залишилося:</p>
+                    <div id="countdown" class="text-4xl font-mono font-black text-yellow-500 bg-gray-800 p-4 rounded-lg">
+                        <span id="countdown-days">00</span>д : 
+                        <span id="countdown-hours">00</span>г : 
+                        <span id="countdown-minutes">00</span>х
+                    </div>
+                    <p class="text-sm mt-4 text-gray-500">Знижка автоматично застосована до ціни.</p>
+                </div>
+            </div>
+            
+            <!-- Purchase Form -->
+            <div class="max-w-xl mx-auto mt-16 bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-700">
+                <h3 class="text-3xl font-bold mb-6 text-indigo-400 text-center">Форма Купівлі</h3>
+                <form id="purchase-form" onsubmit="event.preventDefault(); submitForm(event)">
+                    <div class="mb-4">
+                        <label for="form-name" class="block text-sm font-medium mb-2">Ваше Ім'я та Прізвище <span class="text-red-500">*</span></label>
+                        <input type="text" id="form-name" required class="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg text-white focus:ring-indigo-500 focus:border-indigo-500" placeholder="Іван Петров">
+                        <p id="error-form-name" class="text-red-500 text-sm mt-1 hidden">Введіть ім'я.</p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="form-email" class="block text-sm font-medium mb-2">Email <span class="text-red-500">*</span></label>
+                        <input type="email" id="form-email" required class="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg text-white focus:ring-indigo-500 focus:border-indigo-500" placeholder="example@email.com">
+                        <p id="error-form-email" class="text-red-500 text-sm mt-1 hidden">Введіть коректний Email.</p>
+                    </div>
+                    <div class="mb-6">
+                        <label for="form-phone" class="block text-sm font-medium mb-2">Телефон</label>
+                        <input type="tel" id="form-phone" class="w-full bg-gray-800 border border-gray-700 p-3 rounded-lg text-white focus:ring-indigo-500 focus:border-indigo-500" placeholder="+380XXXXXXXXX">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full text-white font-bold py-3 px-6 rounded-lg text-lg">
+                        Сплатити <span id="payment-amount">0 грн</span>
+                    </button>
+                    <p id="form-status" class="text-center mt-4 text-lg hidden"></p>
+                </form>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section id="map" class="py-16 md:py-24 bg-gray-900">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Мапа Фестивалю</h2>
+            
+            <div class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-xl shadow-2xl">
+                <p class="text-center mb-4 text-gray-400">Наведіть курсор на зону, щоб побачити інформацію.</p>
+                <!-- SVG Map Placeholder -->
+                <svg id="festival-map-svg" viewBox="0 0 100 100" class="w-full h-auto max-h-[500px] bg-gray-700 rounded-lg border-2 border-indigo-500/50">
+                    <text x="50" y="50" dominant-baseline="middle" text-anchor="middle" font-size="5" fill="#f3f4f6">Схема Фестивалю (Placeholder)</text>
+                    <!-- Map areas will be injected here by JS -->
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Info Modal -->
+    <div id="map-modal" class="modal fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity">
+        <div class="modal-content bg-gray-900 p-6 rounded-xl shadow-2xl max-w-sm w-full relative border border-indigo-500/50">
+            <button onclick="closeMapModal()" class="absolute top-3 right-3 p-1 rounded-full bg-gray-800 hover:bg-gray-700 transition"><i data-lucide="x" class="w-5 h-5 text-gray-300"></i></button>
+            <h3 id="modal-area-name" class="text-2xl font-bold mb-2 text-indigo-400"></h3>
+            <p id="modal-area-description" class="text-gray-300"></p>
+        </div>
+    </div>
+
+
+    <!-- Playlist Section -->
+    <section id="playlist" class="py-16 md:py-24 bg-gray-800">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">Плейліст Артистів</h2>
+            
+            <div class="max-w-3xl mx-auto bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-700">
+                
+                <!-- Artist Selector -->
+                <div class="flex items-center justify-center space-x-4 mb-8">
+                    <label for="artist-selector" class="text-lg font-semibold whitespace-nowrap">Виберіть Артиста:</label>
+                    <select id="artist-selector" onchange="switchArtistPlaylist(this.value)" class="bg-gray-800 border border-gray-700 text-white p-3 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 w-full md:w-auto">
+                        <!-- Options will be injected here -->
+                    </select>
+                </div>
+
+                <!-- Spotify Embedded Player -->
+                <div id="spotify-player-container" class="aspect-video">
+                    <iframe id="spotify-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/artist/4vTjF793fE5K3J0J21xWqY?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="bg-gray-950 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400 mb-4">&copy; 2025 Rock Freedom Fest. Усі права захищено.</p>
+            <div class="flex justify-center space-x-6">
+                <a href="https://github.com/yourfestival" target="_blank" class="text-gray-400 hover:text-indigo-500 transition"><i data-lucide="github" class="w-6 h-6"></i></a>
+                <a href="https://linkedin.com/yourfestival" target="_blank" class="text-gray-400 hover:text-indigo-500 transition"><i data-lucide="linkedin" class="w-6 h-6"></i></a>
+                <a href="#" class="text-gray-400 hover:text-indigo-500 transition"><i data-lucide="instagram" class="w-6 h-6"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Ініціалізація іконок Lucide
+        lucide.createIcons();
+
+        // ----------------------------------------------------
+        // I. СИМУЛЯЦІЯ JSON ДАНИХ ТА ГЛОБАЛЬНИЙ СТАН
+        // ----------------------------------------------------
+        
+        const LINEUP_DATA = [
+            { "id": 1, "band": "The Hardkiss", "genre": "rock", "day": "friday", "stage": "main", "time": "21:00", "duration": 90, "image": "https://placehold.co/100x100/A78BFA/FFFFFF?text=THK", "bio": "Український рок-гурт, відомий своїм потужним вокалом та глибокими текстами. Хедлайнери вечора.", "social": { "instagram": "@thehardkiss" }, "spotifyId": "4vTjF793fE5K3J0J21xWqY" },
+            { "id": 2, "band": "Alyona Alyona", "genre": "rap", "day": "friday", "stage": "second", "time": "19:30", "duration": 60, "image": "https://placehold.co/100x100/34D399/FFFFFF?text=AA", "bio": "Відома українська реп-виконавиця, що підкорила світові чарти.", "social": { "instagram": "@alyona.alyona.official" }, "spotifyId": "2iFj4tI6tS4C9t7c82gYmJ" },
+            { "id": 3, "band": "DakhaBrakha", "genre": "folk", "day": "saturday", "stage": "main", "time": "22:00", "duration": 90, "image": "https://placehold.co/100x100/FDBA74/FFFFFF?text=DB", "bio": "Етно-хаос гурт, що поєднує українську народну музику та африканські ритми.", "social": { "instagram": "@dakhabrakha" }, "spotifyId": "4oK0i67YfO4Q6T74P6jXoQ" },
+            { "id": 4, "band": "KAZKA", "genre": "pop", "day": "saturday", "stage": "second", "time": "19:00", "duration": 60, "image": "https://placehold.co/100x100/F472B6/FFFFFF?text=KZK", "bio": "Поп-гурт, відомий своїми хітами, що лунають у всьому світі.", "social": { "instagram": "@kazka.band" }, "spotifyId": "3V8YgS6sH5j0V2V4gNyn6x" },
+            { "id": 5, "band": "ONUKA", "genre": "electronic", "day": "sunday", "stage": "main", "time": "20:30", "duration": 75, "image": "https://placehold.co/100x100/60A5FA/FFFFFF?text=ONK", "bio": "Український електро-фолк гурт. Поєднання сучасного електронного звучання та народних інструментів.", "social": { "instagram": "@onukaofficial" }, "spotifyId": "1g0P910xWkP70h17G2Y6m7" },
+            { "id": 6, "band": "Kalush Orchestra", "genre": "rap", "day": "sunday", "stage": "second", "time": "18:00", "duration": 60, "image": "https://placehold.co/100x100/D97706/FFFFFF?text=KO", "bio": "Переможці Євробачення-2022. Унікальний мікс репу та фольку.", "social": { "instagram": "@kalush.official" }, "spotifyId": "249Y6uM1lC5pC9T9X10V7S" },
+        ];
+
+        const TICKET_PRICES = {
+            'general': {
+                'friday': 800, 'saturday': 900, 'sunday': 700,
+                'all': 2000
+            },
+            'vip': {
+                'friday': 1500, 'saturday': 1800, 'sunday': 1300,
+                'all': 4500
+            }
+        };
+
+        const MAP_AREAS = [
+            { id: 'area-1', name: 'Головна Сцена (Main Stage)', description: 'Найбільша сцена фестивалю. Тут виступають хедлайнери.', coordinates: '30,10 50,20 50,80 30,70', fill: '#ef4444' },
+            { id: 'area-2', name: 'Мала Сцена (Second Stage)', description: 'Сцена для молодих та інді-виконавців.', coordinates: '70,30 90,40 90,60 70,50', fill: '#3b82f6' },
+            { id: 'area-3', name: 'Фуд-корт', description: 'Різноманітна кухня: від бургерів до вегетаріанських страв.', coordinates: '10,80 20,90 40,90 30,80', fill: '#facc15' },
+            { id: 'area-4', name: 'Лаунж-зона', description: 'Місце для відпочинку та зарядки телефонів.', coordinates: '80,80 95,75 95,90 80,95', fill: '#22c55e' }
+        ];
+
+        let lineupFilters = {
+            day: 'friday',
+            genre: 'all',
+            stage: 'all'
+        };
+        
+        let ticketState = {
+            type: 'general',
+            day: 'all',
+            quantity: 1,
+            discountRate: 0.15 // 15% discount for early bird
+        };
+
+        // ----------------------------------------------------
+        // II. ІНІЦІАЛІЗАЦІЯ ДОДАТКУ
+        // ----------------------------------------------------
+
+        function initApp() {
+            initLineup();
+            initTickets();
+            initMap();
+            initPlaylist();
+            calculateTicketPrice(); // Початковий розрахунок
+            initCountdown();
+        }
+
+        // ----------------------------------------------------
+        // III. ЛАЙН-АП ТА ФІЛЬТРАЦІЯ
+        // ----------------------------------------------------
+
+        function initLineup() {
+            // Збір унікальних жанрів та сцен
+            const uniqueGenres = [...new Set(LINEUP_DATA.map(a => a.genre))];
+            const uniqueStages = [...new Set(LINEUP_DATA.map(a => a.stage))];
+
+            // Заповнення фільтрів
+            const genreFilter = document.getElementById('genre-filter');
+            uniqueGenres.forEach(genre => {
+                genreFilter.innerHTML += `<option value="${genre}">${genre.charAt(0).toUpperCase() + genre.slice(1)}</option>`;
+            });
+
+            const stageFilter = document.getElementById('stage-filter');
+            uniqueStages.forEach(stage => {
+                const stageName = stage === 'main' ? 'Головна' : 'Мала';
+                stageFilter.innerHTML += `<option value="${stage}">${stageName} Сцена</option>`;
+            });
+
+            // Початковий рендеринг
+            renderLineup();
+        }
+
+        function setLineupFilter(filterType, value) {
+            lineupFilters[filterType] = value;
+
+            // Оновлення активного стану для табів дня
+            if (filterType === 'day') {
+                document.querySelectorAll('.tab-btn[data-filter^="day:"]').forEach(btn => {
+                    btn.classList.remove('tab-active', 'bg-indigo-500/20');
+                    btn.classList.add('bg-gray-800');
+                });
+                const activeBtn = document.querySelector(`.tab-btn[data-filter="day:${value}"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add('tab-active');
+                    activeBtn.classList.remove('bg-gray-800');
+                }
+            }
+            
+            renderLineup();
+        }
+
+        function renderLineup() {
+            const container = document.getElementById('lineup-container');
+            container.innerHTML = '';
+            
+            // Фільтрація даних
+            const filteredData = LINEUP_DATA.filter(act => {
+                const dayMatch = lineupFilters.day === act.day;
+                const genreMatch = lineupFilters.genre === 'all' || lineupFilters.genre === act.genre;
+                const stageMatch = lineupFilters.stage === 'all' || lineupFilters.stage === act.stage;
+                return dayMatch && genreMatch && stageMatch;
+            });
+
+            if (filteredData.length === 0) {
+                container.innerHTML = '<p class="col-span-3 text-center text-gray-400 text-xl py-10">На жаль, виступів за цими критеріями не знайдено.</p>';
+                return;
+            }
+
+            // Сортування за часом
+            filteredData.sort((a, b) => a.time.localeCompare(b.time));
+
+            filteredData.forEach(act => {
+                const stageName = act.stage === 'main' ? 'Головна' : 'Мала';
+                const card = document.createElement('div');
+                card.className = 'act-card bg-gray-800 p-5 rounded-xl flex space-x-4 border-l-4 border-indigo-500/50';
+                card.innerHTML = `
+                    <img src="${act.image}" alt="${act.band}" onerror="this.onerror=null; this.src='https://placehold.co/100x100/333333/FFFFFF?text=Band';" class="w-16 h-16 rounded-full object-cover">
+                    <div class="flex-grow">
+                        <h3 class="text-2xl font-black mb-1 text-indigo-400">${act.band}</h3>
+                        <p class="text-sm text-gray-300 font-semibold mb-2">${act.time} - ${stageName} Сцена</p>
+                        <p class="text-xs text-gray-500">Жанр: ${act.genre.charAt(0).toUpperCase() + act.genre.slice(1)} | Тривалість: ${act.duration} хв</p>
+                        <p class="mt-2 text-sm text-gray-400">${act.bio}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+
+        // ----------------------------------------------------
+        // IV. СИСТЕМА КВИТКІВ
+        // ----------------------------------------------------
+
+        function initTickets() {
+            document.getElementById('ticket-quantity').addEventListener('change', calculateTicketPrice);
+        }
+
+        function selectTicketType(type) {
+            ticketState.type = type;
+            document.querySelectorAll('.ticket-type-btn').forEach(btn => {
+                btn.classList.remove('tab-active', 'bg-indigo-500/20');
+                btn.classList.add('bg-gray-700');
+            });
+            document.querySelector(`.ticket-type-btn[data-type="${type}"]`).classList.add('tab-active', 'bg-indigo-500/20');
+            calculateTicketPrice();
+        }
+
+        function selectTicketDay(day) {
+            ticketState.day = day;
+            document.querySelectorAll('.ticket-day-btn').forEach(btn => {
+                btn.classList.remove('tab-active', 'bg-indigo-500/20');
+                btn.classList.add('bg-gray-700');
+            });
+            document.querySelector(`.ticket-day-btn[data-day="${day}"]`).classList.add('tab-active', 'bg-indigo-500/20');
+
+            // Оновлення кількості квитків на формі
+            const quantityInput = document.getElementById('ticket-quantity');
+            if (day === 'all') {
+                quantityInput.max = 5; // Обмеження для All Inclusive
+            } else {
+                quantityInput.max = 10;
+            }
+            if (parseInt(quantityInput.value) > parseInt(quantityInput.max)) {
+                quantityInput.value = quantityInput.max;
+            }
+
+            calculateTicketPrice();
+        }
+
+        function calculateTicketPrice() {
+            const quantity = parseInt(document.getElementById('ticket-quantity').value) || 0;
+            ticketState.quantity = quantity;
+
+            const basePrice = TICKET_PRICES[ticketState.type][ticketState.day] || 0;
+
+            let finalPrice = basePrice * quantity;
+            
+            // Застосування знижки (симульований countdown discount)
+            finalPrice = finalPrice * (1 - ticketState.discountRate);
+
+            const priceDisplay = document.getElementById('total-price');
+            priceDisplay.textContent = `${Math.round(finalPrice).toLocaleString('uk-UA')} грн`;
+            
+            document.getElementById('payment-amount').textContent = `${Math.round(finalPrice).toLocaleString('uk-UA')} грн`;
+
+            return finalPrice;
+        }
+        
+        // Countdown Logic (Симуляція до 1 червня)
+        function initCountdown() {
+            const targetDate = new Date('2025-06-01T00:00:00');
+            
+            const updateCountdown = () => {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdown').innerHTML = "ЗНИЖКА ЗАКІНЧИЛАСЯ!";
+                    ticketState.discountRate = 0; // Зняття знижки
+                    calculateTicketPrice();
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                document.getElementById('countdown-days').textContent = String(days).padStart(2, '0');
+                document.getElementById('countdown-hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('countdown-minutes').textContent = String(minutes).padStart(2, '0');
+            };
+
+            updateCountdown();
+            const countdownInterval = setInterval(updateCountdown, 60000); // Оновлення щохвилини
+        }
+
+        // ----------------------------------------------------
+        // V. ФОРМА КУПІВЛІ ТА ВАЛІДАЦІЯ
+        // ----------------------------------------------------
+
+        function validateForm() {
+            let isValid = true;
+            const nameInput = document.getElementById('form-name');
+            const emailInput = document.getElementById('form-email');
+
+            // Валідація імені
+            if (nameInput.value.trim().length < 3) {
+                nameInput.classList.add('border-red-500');
+                document.getElementById('error-form-name').classList.remove('hidden');
+                isValid = false;
+            } else {
+                nameInput.classList.remove('border-red-500');
+                document.getElementById('error-form-name').classList.add('hidden');
+            }
+
+            // Валідація Email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailInput.value)) {
+                emailInput.classList.add('border-red-500');
+                document.getElementById('error-form-email').classList.remove('hidden');
+                isValid = false;
+            } else {
+                emailInput.classList.remove('border-red-500');
+                document.getElementById('error-form-email').classList.add('hidden');
+            }
+
+            return isValid;
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            const statusDisplay = document.getElementById('form-status');
+
+            if (validateForm()) {
+                const formData = {
+                    name: document.getElementById('form-name').value,
+                    email: document.getElementById('form-email').value,
+                    phone: document.getElementById('form-phone').value,
+                    ticketDetails: ticketState,
+                    finalPrice: calculateTicketPrice()
+                };
+
+                // Імітація оплати
+                statusDisplay.classList.remove('hidden', 'text-red-500');
+                statusDisplay.classList.add('text-indigo-400');
+                statusDisplay.innerHTML = '<i data-lucide="loader" class="w-5 h-5 inline animate-spin mr-2"></i> Обробка оплати...';
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    console.log("Замовлення надіслано:", formData);
+                    statusDisplay.classList.remove('text-indigo-400');
+                    statusDisplay.classList.add('text-green-500');
+                    statusDisplay.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i> Квитки успішно придбано! Перевірте Ваш Email.';
+                    
+                    // Очищення форми (крім квиткового стану)
+                    document.getElementById('purchase-form').reset();
+
+                }, 2000);
+
+            } else {
+                statusDisplay.classList.remove('hidden');
+                statusDisplay.classList.add('text-red-500');
+                statusDisplay.innerHTML = '<i data-lucide="alert-triangle" class="w-5 h-5 inline mr-2"></i> Будь ласка, виправте помилки у формі.';
+                lucide.createIcons();
+            }
+        }
+
+        // ----------------------------------------------------
+        // VI. ІНТЕРАКТИВНА МАПА
+        // ----------------------------------------------------
+
+        function initMap() {
+            const svg = document.getElementById('festival-map-svg');
+            
+            MAP_AREAS.forEach(area => {
+                const polygon = document.createElementNS("http://www.w3.org/2000/svg", 'polygon');
+                polygon.setAttribute('points', area.coordinates);
+                polygon.setAttribute('fill', area.fill);
+                polygon.setAttribute('data-area-id', area.id);
+                polygon.classList.add('map-area');
+                
+                polygon.addEventListener('mouseenter', () => {
+                    polygon.style.opacity = '1';
+                });
+                polygon.addEventListener('mouseleave', () => {
+                    polygon.style.opacity = '0.8';
+                });
+                polygon.addEventListener('click', () => showMapModal(area));
+
+                svg.appendChild(polygon);
+            });
+        }
+        
+        function showMapModal(area) {
+            const modal = document.getElementById('map-modal');
+            document.getElementById('modal-area-name').textContent = area.name;
+            document.getElementById('modal-area-description').textContent = area.description;
+            
+            modal.classList.add('opacity-100', 'pointer-events-auto', 'modal-visible');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMapModal() {
+            const modal = document.getElementById('map-modal');
+            modal.classList.remove('opacity-100', 'pointer-events-auto', 'modal-visible');
+            document.body.style.overflow = 'auto';
+        }
+
+
+        // ----------------------------------------------------
+        // VII. ПЛЕЙЛІСТ АРТИСТІВ
+        // ----------------------------------------------------
+
+        function initPlaylist() {
+            const selector = document.getElementById('artist-selector');
+            selector.innerHTML = '';
+            
+            // Додаємо опції для всіх артистів
+            LINEUP_DATA.forEach((act, index) => {
+                if (act.spotifyId) {
+                    const option = document.createElement('option');
+                    option.value = act.spotifyId;
+                    option.textContent = act.band;
+                    if (index === 0) {
+                        option.selected = true;
+                    }
+                    selector.appendChild(option);
+                }
+            });
+
+            // Завантажуємо плейліст першого артиста (вже встановлено в HTML src)
+            // switchArtistPlaylist(LINEUP_DATA.find(a => a.spotifyId).spotifyId);
+        }
+
+        function switchArtistPlaylist(spotifyId) {
+            const iframe = document.getElementById('spotify-iframe');
+            if (spotifyId) {
+                const srcUrl = `https://open.spotify.com/embed/artist/${spotifyId}?utm_source=generator&theme=0`;
+                iframe.src = srcUrl;
+            } else {
+                iframe.src = ''; // Очистити, якщо не вибрано
+            }
+        }
+    </script>
+</body>
+</html>
